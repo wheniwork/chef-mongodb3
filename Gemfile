@@ -36,3 +36,8 @@ group :integration do
   gem 'test-kitchen'
   gem 'kitchen-vagrant'
 end
+
+group :test do
+  gem 'chef', '11.10'
+  gem 'rspec', '~> 3.1'
+end
