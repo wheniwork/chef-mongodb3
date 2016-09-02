@@ -20,9 +20,8 @@
 include_recipe 'mongodb3::package_repo'
 
 # Install MongoDB package
-install_package = %w(mongodb-org-server mongodb-org-shell mongodb-org-tools)
 
-install_package.each do |pkg|
+node['mongodb3']['package']['packages'].each do |pkg|
   package pkg do
     version node['mongodb3']['package']['version']
     case node['platform_family']

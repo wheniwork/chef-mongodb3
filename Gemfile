@@ -1,14 +1,38 @@
 source 'https://rubygems.org'
 
-gem 'berkshelf', '~> 4.0.1'
-gem 'test-kitchen', '~> 1.4.0'
-gem 'foodcritic', '4.0.0'
+gem 'berkshelf'
 
-group :integration do
-  gem 'kitchen-vagrant', '~> 0.18.0'
+gem 'chefspec'
+gem 'foodcritic'
+gem 'rubocop'
+
+# For bumping versions
+gem 'thor'
+gem 'thor-scmversion'
+
+# Simple tasks
+gem 'rake'
+
+# Give me simple cli colors
+gem 'colored'
+
+# notification webhooks
+gem 'httparty'
+
+group :development do
+  gem 'guard'
+  gem 'guard-kitchen'
+  gem 'guard-foodcritic'
+  gem 'guard-rubocop'
+  gem 'guard-rspec'
+  gem 'knife-cookbook-doc'
+  gem 'knife-solo'
+  gem 'knife-solo_data_bag'
+  gem 'guard-shell'
 end
 
-group :test do
-  gem 'chef', '11.10'
-  gem 'rspec', '~> 3.1'
+# Allow for kitchen integration
+group :integration do
+  gem 'test-kitchen'
+  gem 'kitchen-vagrant'
 end

@@ -25,7 +25,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   # If this value is a shorthand to a box in Vagrant Cloud then
   # config.vm.box_url doesn't need to be specified.
-  config.vm.box = 'chef/ubuntu-14.04'
+  config.vm.box = 'ubuntu/trusty64'
 
 
   # Assign this VM to a host-only network IP, allowing you to access it
@@ -73,6 +73,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # An array of symbols representing groups of cookbook described in the Vagrantfile
   # to skip installing and copying to Vagrant's shelf.
   # config.berkshelf.except = []
+  config.ssh.forward_agent = true
+  config.ssh.insert_key = false
+  config.vm.synced_folder '.', '/vagrant', type: 'rsync'
+  config.berkshelf.enabled = true
+
+  config.omnibus.chef_version = '12.9.41'
+
 
   config.vm.provision :chef_solo do |chef|
     chef.json = {

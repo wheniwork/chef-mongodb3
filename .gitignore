@@ -18,3 +18,10 @@ bin/*
 
 .kitchen/
 .kitchen.local.yml
+
+vendor/*
+.ruby-version
+
+VERSION
+
+test/integration/nodes/*.json

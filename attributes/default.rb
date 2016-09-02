@@ -26,6 +26,9 @@ default['mongodb3']['version'] = '3.2.8'
 # MongoDB package version to install : eg. 3.0.8, 3.2.1, 3.2.1-1.el6 or 3.2.1-1.amzn1
 default['mongodb3']['package']['version'] = nil
 
+# MongoDB package names to install
+default['mongodb3']['package']['packages'] = %w(mongodb-org-server mongodb-org-shell mongodb-org-tools)
+
 # MongoDB package repo url
 # eg. ubuntu : 'http://repo.mongodb.org/apt/ubuntu'
 # eg. centos : 'https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.2/x86_64/'
