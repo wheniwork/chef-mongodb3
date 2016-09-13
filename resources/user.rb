@@ -6,4 +6,4 @@ attribute :password, :kind_of => String, :required => true
 attribute :roles, :kind_of => Array, :required => true
 attribute :database, :kind_of => String, :default => "admin"
 
-attr_accesor :exists
+attr_accessor :exists
