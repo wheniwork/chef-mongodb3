@@ -6,15 +6,15 @@
 
 * Install and configure the mongod (or configure the config server for shard cluster)
 * Install and configure the mongos
- * Also, mongos configure the mongos service with runit : `service mongos start|stop|restart|status` 
+ * Also, mongos configure the mongos service with runit : `service mongos start|stop|restart|status`
 * Install and configure the MMS Automation Agent
 * Install and configure the MMS Monitoring Agent
+* Add/Update mongod users.
 
 ### NOTICE :
 
-* Current version is not supporting automation and monitoring mms agent installation for Debian 7.8.
-* MongoDB **3.2.8** is default version of mongodb3 cookbook.
-* Mongodb3 cookbook is **NO LONGER SUPPORT** Chef Client version 11.
+* Current version is not supporting automation and monitoring mms agent installation for Debian 7.8
+* MongoDB 3.2.4 is default version of mongodb3 cookbook
 
 ### Contributors
 
@@ -26,19 +26,15 @@
 * Julien Pervillé - [@jperville](https://github.com/jperville)
 * Daniel Doubrov - [@dblock](https://github.com/dblock)
 * Damien Raude-Morvan - [@drazzib](https://github.com/drazzib)
-* Jose Olcese - [@jolcese](https://github.com/jolcese)
-* Dennis Pattmann - [@dpattmann](https://github.com/dpattmann)
-* Marcin Skurski - [@mskurski](https://github.com/mskurski)
-* Popsikle - [@popsikle](https://github.com/popsikle)
-* Amsdard - [@amsdard](https://github.com/amsdard)
+
 
 ## Supported Platforms
 
 The following platforms have been tested with Test Kitchen
 
-* Ubuntu 12.04, 14.04, 15.04, 16.04
+* Ubuntu 12.04, 14.04
 * Debian 7.8
-* CentOS 6.8, 7.2
+* CentOS 6.6, 7.2
 * Oralce 6.6
 * Amazon Linux
 
@@ -49,6 +45,7 @@ mongodb3 cookbook uses the package installation of mongodb3 such as yum or apt. 
 
 WARNING : Please do not set the user and group attribute on your side. This cook book let installing user and group by mongodb package (except `mongos` and `mms-monitoring-agent` recipe). The user and group name will be set by condition in default attribute because mongodb package installs different user and group name by platform.
 
+WARNING : In order to create database users first run must be done with `disabled authorization` otherwise mongo client will throw authorization error even tho `localhost exception` is on. Theoretically this should allow to create first user and it does for mongo shell but not for ruby mongo client.
 ```
 # MongoDB version to install
 default['mongodb3']['version'] = '3.2.1'
@@ -67,17 +64,27 @@ default['mongodb3']['package']['repo']['apt']['components'] = nil # `multiverse`
 default['mongodb3']['user'] = 'mongod' | 'mongodb'
 default['mongodb3']['group'] = 'mongod' | 'mongodb'
 
+# MongoDB super user
+default['mongodb3']['admin']['username'] = 'admin'
+default['mongodb3']['admin']['password'] = 'admin'
+default['mongodb3']['admin']['roles'] = ['root']
+default['mongodb3']['admin']['database'] = 'admin'
+
+# MongoDB regular users
+default['mongodb3']['users'] = [] # eg. [{"username": "test", "password":"test", "roles": ["dbAdmin"], "database": "test"}]
+
 # Mongod config file path
 default['mongodb3']['mongod']['config_file'] = '/etc/mongod.conf'
 
 # Mongos config file path
 default['mongodb3']['mongos']['config_file'] = '/etc/mongos.conf'
 
-# Runit template cookbook for mongos
-default['mongodb3']['mongos']['runit_template_cookbook'] = 'mongodb3'
-
 # Key file contents
 default['mongodb3']['config']['key_file_content'] = nil
+
+# Ruby gems required for user management
+default['mongodb3']['ruby_gems']['mongo'] = nil
+default['mongodb3']['ruby_gems']['bson_ext'] = nil
 ```
 
 ### Mongod config Attributes
@@ -368,6 +375,20 @@ Include `mongodb3::default` in your node's `run_list`:
 }
 ```
 
+### mongodb3::users
+
+Create and/or update database users.
+
+Include `mongodb3::users` in your node's `run_list`:
+
+```json
+{
+  "run_list": [
+    "recipe[mongodb3::users]"
+  ]
+}
+```
+
 ### mongodb3::mongos
 
 Install and configure the mongos.
@@ -442,6 +463,45 @@ storage:
   journal:
     enabled: true
   engine: mmapv1
+```
+
+### Create test user for test database
+
+Simply add `mongodb3::users` recipe alongside the `mongodb3::default` with additional attribute settings:
+
+```json
+{
+  "default_attributes": {
+    "mongodb3" : {
+      "users" : [{
+        "username": "test",
+        "password": "test",
+        "roles": ["dbAdmin"],
+        "database": "test"
+      }]
+    }
+  },
+  "run_list": [
+    "recipe[mongodb3::default]",
+    "recipe[mongodb3::users]"
+  ]
+}
+```
+
+#### Result of `show users` of ''test'' database
+
+```json
+{
+	"_id" : "test.test",
+	"user" : "test",
+	"db" : "test",
+	"roles" : [
+		{
+			"role" : "dbAdmin",
+			"db" : "test"
+		}
+	]
+}
 ```
 
 ### Replicaset
@@ -916,7 +976,7 @@ mmsBaseUrl=https://api-agents.mongodb.com
 Author:: Sunggun Yu (sunggun.dev@gmail.com)
 
 ```text
-Copyright (c) 2016, Sunggun Yu.
+Copyright (c) 2015, Sunggun Yu.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

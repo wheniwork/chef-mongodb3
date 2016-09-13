@@ -133,6 +133,21 @@ case node['platform']
     end
 end
 
+file '/sys/kernel/mm/transparent_hugepage/defrag' do
+  content 'never'
+  mode '0644'
+  owner 'root'
+  group 'root'
+
+end
+
+file '/sys/kernel/mm/transparent_hugepage/enabled' do
+  content 'never'
+  mode '0644'
+  owner 'root'
+  group 'root'
+end
+
 # Start the mongod service
 service 'mongod' do
   case node['platform']

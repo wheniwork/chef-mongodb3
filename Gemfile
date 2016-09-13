@@ -5,6 +5,7 @@ gem 'berkshelf'
 gem 'chefspec'
 gem 'foodcritic'
 gem 'rubocop'
+gem 'mongo' '~> 2.2'
 
 # For bumping versions
 gem 'thor'
