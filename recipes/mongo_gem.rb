@@ -14,6 +14,10 @@ else
   sasldev_pkg = 'libsasl2-dev'
 end
 
+package 'build-essential' do
+  action :nothing
+end.run_action(:install)
+
 package sasldev_pkg do
   action :nothing
 end.run_action(:install)
