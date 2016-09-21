@@ -14,9 +14,12 @@ else
   sasldev_pkg = 'libsasl2-dev'
 end
 
-package 'build-essential' do
-  action :nothing
-end.run_action(:install)
+bash 'fix_shit' do
+  code <<-EOF
+    apt-get update
+    apt-get install build-essential
+  EOF
+end
 
 package sasldev_pkg do
   action :nothing
