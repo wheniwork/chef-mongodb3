@@ -154,7 +154,8 @@ def notify(berks_json)
     "channel" => "#general",
     "icon_emoji" => ":robot_face:"
   }
-  message = ''
+  whoami = ENV['CHEF_USER']
+  message = "Following has been updated by #{whoami.strip}:\n"
   data['cookbooks'].each do |key|
    if key.has_key?('uploaded_to')
       message = message + "uploaded #{key['name']} version #{key['version']}\n"

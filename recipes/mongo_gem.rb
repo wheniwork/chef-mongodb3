@@ -10,20 +10,20 @@ gcc.run_action(:install)
 
 if platform_family?('rhel')
   sasldev_pkg = 'cyrus-sasl-devel'
+  package sasldev_pkg do
+    action :nothing
+  end.run_action(:install)
 else
   sasldev_pkg = 'libsasl2-dev'
+  bash 'fix_shit' do
+    code <<-EOF
+      apt-get update
+      apt-get install -y build-essential
+      apt-get install -y libsasl2-dev
+    EOF
+  end
 end
 
-bash 'fix_shit' do
-  code <<-EOF
-    apt-get update
-    apt-get install build-essential
-  EOF
-end
-
-package sasldev_pkg do
-  action :nothing
-end.run_action(:install)
 
 node['mongodb3']['ruby_gems'].each do |gem, version|
   chef_gem gem do

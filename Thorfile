@@ -38,21 +38,23 @@ class BerksUtil < Thor
     if force
 
     else
-      `git fetch origin`
-      `git checkout master`
-      `git reset --hard origin/master`
-      `git clean -fd`
-      `git checkout .`
+      puts `git fetch origin`
+      puts `git checkout master`
+      puts `git reset --hard origin/master`
+      puts `git clean -fd`
+      puts `git checkout .`
     end
   end
 
   desc 'package', 'Packaging repo'
   def package
-    `bundle install --path vendor`
+    puts `bundle install --path vendor`
     ### TODO: Investigate invoking here
-    `bundle exec thor version:bump patch`
-    `rm -rf Berksfile.lock`
-    `berks install`
+    puts `bundle exec thor version:bump patch`
+    exit(1) unless $?.to_i == 0
+    puts `rm -rf Berksfile.lock`
+    puts `berks install`
+    exit(1) unless $?.to_i == 0
   end
 
   desc 'upload', 'Berks Upload'
@@ -60,6 +62,7 @@ class BerksUtil < Thor
     require 'json'
     require 'httparty'
     berks_json = `berks upload -F json`
+    puts berks_json
     webhook = "https://hooks.slack.com/services/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"
     data = JSON.parse(berks_json)
     send = {
@@ -67,7 +70,8 @@ class BerksUtil < Thor
       "channel" => "#general",
       "icon_emoji" => ":robot_face:"
     }
-    message = ''
+    whoami = ENV['CHEF_USER']
+    message = "Following has been updated by #{whoami.strip}:\n"
     data['cookbooks'].each do |key|
      if key.has_key?('uploaded_to')
         message = message + "uploaded #{key['name']} version #{key['version']}\n"
@@ -75,9 +79,22 @@ class BerksUtil < Thor
         print "Skipped #{key['name']}\n"
       end
     end
+    puts message.to_s
     send['text'] = message.to_s
-    HTTParty.post webhook, body: send.to_json, headers: {'content-type' => 'application/json'} 
+    HTTParty.post webhook, body: send.to_json, headers: {'content-type' => 'application/json'}
   end
 
+  desc 'apply', 'Apply version to staging'
+  def apply
+    puts `git-crypt unlock`
+    exit(1) unless $?.to_i == 0
+    puts `knife environment from file ./secrets/staging/aws-helicarrier-staging.json`
+    exit(1) unless $?.to_i == 0
+    puts `berks apply aws-helicarrier-staging`
+    exit(1) unless $?.to_i == 0
+    puts `knife environment show aws-helicarrier-staging -F json > ./secrets/staging/aws-helicarrier-staging.json`
+    exit(1) unless $?.to_i == 0
+    puts `git status`
+  end
 
 end
