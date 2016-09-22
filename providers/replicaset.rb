@@ -47,7 +47,7 @@ def already_initiated?(members)
       end
       Chef::Log.info 'Replica set is NOT initialized'
     ensure
-      client.close
+      client.close if client
     end
   else
     begin
@@ -62,7 +62,7 @@ def already_initiated?(members)
     rescue ::Mongo::Error::NoServerAvailable => ex
       Chef::Log.info 'Replica set is NOT initialized'
     ensure
-      client.close
+      client.close if client
     end
   end
 
@@ -84,7 +84,7 @@ def initilize_replicaset
     raise ex unless ex.message.include? 'already initialized'
     Chef::Log.warn 'Replica set already initialized'
   ensure
-    client.close
+    client.close if client
   end
 
   begin
@@ -92,7 +92,7 @@ def initilize_replicaset
     client.command({'replSetGetStatus' => 1})
     Chef::Log.info "Replica set is up and running!"
   ensure
-    client.close
+    client.close if client
   end
 
   @new_resource.updated_by_last_action(true)
