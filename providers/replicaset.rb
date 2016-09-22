@@ -29,6 +29,8 @@ end
 
 
 def already_initiated?(members)
+  require 'rubygems'
+  require 'mongo'
   Chef::Log.info 'Checking to see if replica set is initialized'
 
   replica_set_initiated = false
@@ -70,6 +72,8 @@ def already_initiated?(members)
 end
 
 def initilize_replicaset
+  require 'rubygems'
+  require 'mongo'
   Chef::Log.info 'Initializing replica set...'
 
   replica_set_config = Hash.new
